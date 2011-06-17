@@ -24,6 +24,10 @@ FILLME
 
 
 NOTES
+- dumb server
+- load tests
+- split into files
+
 - socket handler api
   - setup socket
   - call back into dispatch
