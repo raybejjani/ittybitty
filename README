@@ -1,0 +1,40 @@
+ittybitty - The little webserver that could.
+
+Ittybitty is a simple webserver targetting small, resource constrained 
+embedded systems. It is designed to defer system-specific or implementation 
+specific code to the intergrator through linking.
+
+Design Overview
+* - integrator provided/selected
++ - ittybitty core
+
+******************       ++++++++++++++++++++++
+* socket handler * <---> + ittybitty dispatch +
+******************       ++++++++++++++++++++++
+                                  |
+        v-----------------v------ +------------v
+******************   ********************  ***********
+* content lookup *   * dynamic handlers *  * loggers *
+******************   ********************  ***********
+
+Style & Conventions
+FILLME
+
+
+
+
+NOTES
+- socket handler api
+  - setup socket
+  - call back into dispatch
+- write basic tests
+- write load tester/reporting
+
+- dispatch calls back into sendv based
+- memcmp list of paths matcher
+- ragel for tree path matcher
+- md5 path matcher with uhash
+- logger unit with 2 interfaces:
+  - json stats through callback
+  - protobuf sockets interface to python dumper
+   
