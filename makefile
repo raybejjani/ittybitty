@@ -1,10 +1,13 @@
 
+OBJS = itty.o main.o
+
+CFLAGS = -std=c99
 
 all: ittybitty
 
 # compliation
-ittybitty: *.c
-	$(CC) main.c -o $@
+ittybitty: $(OBJS)
+	$(CC) $(OBJS) -o $@
 
 #util
 siege-2.70: siege-2.70.tar.gz
@@ -21,4 +24,4 @@ benchmark: siege ittybitty
 
 .PHONY:clean
 clean:
-	rm -f ittybitty *.o
+	rm -rf ittybitty *.o siege siege.*

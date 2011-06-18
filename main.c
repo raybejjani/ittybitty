@@ -10,26 +10,15 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <fcntl.h>
+#include <sys/select.h>
+
+#include "ittybitty.h"
 
 const char port_default_str[] = "3490";
 const int backlog_default = 10;
 
-const char http_header_default[] = "\
-HTTP/1.0 200 OK\r\n\
-Content-Type: text/html\r\n\
-Content-Length: 241\r\n\
-\r\n\
-";
 
-const char html_default[] = "\
-<head>\
-<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\
-<title>Ittybitty Welcome page</title>\
-</head>\
-<body>\
-Welcome to Ittybitty!\
-</body>\
-";
 void sigchld_handler(int s)
 {
     while(waitpid(-1, NULL, WNOHANG) > 0);
@@ -71,14 +60,17 @@ int setup_socket(const char* const port, int backlog) {
         sockfd = -1;
 				goto setup_socket_cleanup;
     }
-
-    // loop through all the results and bind to the first we can
+		
+    		
+		// loop through all the results and bind to the first we can
     for(p = servinfo; p != NULL; p = p->ai_next) {
 				rv = sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
         if(rv == -1) {
             perror("server: socket");
             continue;
         }
+				
+				fcntl(sockfd, F_SETFL, O_NONBLOCK);
 
 				setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
         if(rv == -1) {
@@ -131,6 +123,7 @@ int main(void)
     int yes=1;
     char s[INET6_ADDRSTRLEN];
     int rv;
+		fd_set sock_select;
 
 
 		sockfd = setup_socket(port_default_str, backlog_default);
@@ -143,22 +136,26 @@ int main(void)
 
     printf("server: waiting for connections...\n");
 
-    while(1) {  // main accept() loop
-        sin_size = sizeof their_addr;
-        new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
-        if(new_fd == -1) { perror("accept"); continue; }
+		// main accept() loop
+		FD_ZERO(&sock_select);
+		FD_SET(sockfd, &sock_select);
+    while(select(sockfd+1, &sock_select, NULL, NULL, NULL) == 1) {
+			FD_ZERO(&sock_select);
+			FD_SET(sockfd, &sock_select);
 
-        inet_ntop(their_addr.ss_family,
-            get_in_addr((struct sockaddr *)&their_addr),
-            s, sizeof s);
-        printf("server: got connection from %s\n", s);
+			sin_size = sizeof their_addr;
+			new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
+			if(new_fd == -1) { perror("accept"); continue; }
 
-				rv = send(new_fd, http_header_default, strlen(html_default), 0);
-				if(rv == -1) { perror("send"); }
-				rv = send(new_fd, html_default, strlen(html_default), 0);
-				if(rv == -1) { perror("send"); }
+			inet_ntop(their_addr.ss_family,
+					get_in_addr((struct sockaddr *)&their_addr),
+					s, sizeof s);
+			printf("server: got connection from %s\n", s);
 
-				close(new_fd);
+			rv = itty_handle(new_fd);
+			if(rv == -1) { perror("itty_handle"); }
+
+			close(new_fd);
     }
 
     close(sockfd);
