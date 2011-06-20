@@ -11,17 +11,12 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-
+#include "http_dispatch.h"
+#include "http_util.h"
 #include "ittybitty.h"
 
-const char http_header_default[] = "\
-HTTP/1.0 200 OK\r\n\
-Content-Type: text/html\r\n\
-Content-Length: 241\r\n\
-\r\n\
-";
-
-const char html_default[] = "\
+// Constants
+const char index_html[] = "\
 <head>\
 <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\
 <title>Ittybitty Welcome page</title>\
@@ -29,11 +24,55 @@ const char html_default[] = "\
 <body>\
 Welcome to Ittybitty!\
 </body>\
+\r\n\
 ";
+
+const char foo_html[] = "\
+<head>\
+<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\
+<title>Ittybitty Welcome page</title>\
+</head>\
+<body>\
+I pity the foo!\
+</body>\
+";
+
+
+// http dispatch data
+struct http_parser_data parser;
+
+/*
+ * data used by the itty server
+ */
+struct itty_data {
+	http_dispatch_verb_t verb;
+	char path[256];
+	http_dispatch_http_version_t version;
+} data;
+
+// itty functions that have to be implemented
+void itty_http_dispatch_setVerb(void* id, http_dispatch_verb_t verb) {
+	struct itty_data* data = (struct itty_data*)id;
+	data->verb = verb;
+}
+
+void itty_http_dispatch_accumPath(void* id, char c) {
+	struct itty_data* data = (struct itty_data*)id;
+	data->path[strlen(data->path)] = c;
+}
+
+void itty_http_dispatch_setHttpVersion(void* id, http_dispatch_http_version_t version) {
+	struct itty_data* data = (struct itty_data*)id;
+	data->version = version;
+}
 
 itty_status_t itty_handle(int sockfd) {
 	int rv;
-	char request[1024];
+	char request[128];
+	
+	memset(&data, 0, sizeof(data));	
+	http_parse_init(&parser);
+
 	// read request
 	for(int i = 0; i < sizeof(request); ) {
 		printf("%s", request);
@@ -42,12 +81,11 @@ itty_status_t itty_handle(int sockfd) {
 		else if(rv < 0 && errno != EWOULDBLOCK) { perror("recv"); break; }
 		else { i += rv; }
 	}
-	
-	// write out response
-	rv = send(sockfd, http_header_default, strlen(html_default), 0);
-	if(rv == -1) { perror("send"); }
-	rv = send(sockfd, html_default, strlen(html_default), 0);
-	if(rv == -1) { perror("send"); }
+
+	printf("%s\r\n", data.path);
+
+	rv = itty_http_200(sockfd, index_html, sizeof(index_html)-1);
+	if(rv == -1) { perror("itty_http_200"); }
 
 	return itty_status_ok;
 }
