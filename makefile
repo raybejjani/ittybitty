@@ -9,7 +9,7 @@ all: ittybitty
 
 # compilation
 ittybitty: http_dispatch $(OBJS)
-	$(CC) $(OBJS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) $(OBJS) -o $@ 
 
 .PHONY:http_dispatch
 http_dispatch:
