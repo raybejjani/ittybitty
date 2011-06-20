@@ -19,14 +19,50 @@ struct http_parser_data
 	int cs; // parser state
 };
 
-// Dispatch callbacks, provided to dispatch
+/*** Dispatch callbacks, provided to dispatch ***/
+/*
+ * Called for every character in the HTTP request.
+ * id - user provided id value that is passed back in callbacks.
+ */
 void itty_http_dispatch_accumReq(void* id, char c);
+
+/*
+ * Called once the HTTP verb is determined.
+ * id - user provided id value that is passed back in callbacks.
+ */
 void itty_http_dispatch_setVerb(void* id, http_dispatch_verb_t verb);
+
+/*
+ * Called for every character in the HTTP path.
+ * id - user provided id value that is passed back in callbacks.
+ */
 void itty_http_dispatch_accumPath(void* id, char c);
+
+/*
+ * Called once the HTTP version is determined.
+ * id - user provided id value that is passed back in callbacks.
+ */
 void itty_http_dispatch_setHttpVersion(void* id, http_dispatch_http_version_t version);
-// Dispatch APIi, provided by dispatch
+
+/*** Dispatch API, provided by dispatch ***/
+/*
+ * Initialises the parser to it's start state.
+ */
 void http_parse_init(struct http_parser_data *fsm);
+
+/*
+ * Runs the parses on the input. Parser carries state.
+ * id - user provided id value that is passed back in callbacks.
+ */
 void http_parse_execute(struct http_parser_data *fsm, void* const id, const char *http_data, int len);
+
+/*
+ * Convenience function to check if parser is in a finish or error state.
+ *
+ * returns:  0  Incomplete
+ *           1  Complete
+ *          -1  Error
+ */
 int http_parse_finish(struct http_parser_data *fsm);
 
 #endif /* __HTTP_DISPATCH_H__ */
