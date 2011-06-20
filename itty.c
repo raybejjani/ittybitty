@@ -73,24 +73,41 @@ void itty_http_dispatch_setHttpVersion(void* id, http_dispatch_http_version_t ve
 
 itty_status_t itty_handle(int sockfd) {
 	int rv;
-	char request[128];
-	
+
+	// setup parser and data
 	memset(&data, 0, sizeof(data));	
 	http_parse_init(&parser);
 
-	// read request
-	for(int i = 0; i < sizeof(request); ) {
-		printf("%s", request);
-		rv = recv(sockfd, &request[i], sizeof(request)-i, 0);
-		if(rv == 0 ) { break; }
+	// read request, break out on errors and a successful request read.
+	do {
+		char request_data[128];
+		memset(request_data, 0, sizeof(request_data));
+
+		errno = 0;
+		rv = recv(sockfd, request_data, sizeof(request_data), 0);
+
+		if(rv == 0 ) { printf("conn closed"); break; }
+		else if(rv < 0 && errno == EAGAIN) { continue; }
 		else if(rv < 0 && errno != EWOULDBLOCK) { perror("recv"); break; }
-		else { i += rv; }
+		else {
+			printf("executing on (%d:%d) %s\r\n", rv, errno, request_data);
+			http_parse_execute(&parser, &data, request_data, rv);
+		}
+	} while(http_parse_finish(&parser) == 0);
+
+	// ensure a newline after any possible printing related to parsing
+	printf("\r\n");
+
+	// check if we had a parsing error
+	if(http_parse_finish(&parser) == -1) {
+		rv = itty_http_400(sockfd);
+		printf("HTTP 400 Bad Request\r\n");
+		if(rv == -1) { perror("itty_http_400"); }
+	} else {
+		printf("Returning %s\r\n", data.path);
+		rv = itty_http_200(sockfd, index_html, sizeof(index_html)-1);
+		if(rv == -1) { perror("itty_http_200"); }
 	}
-
-	printf("%s\r\n", data.path);
-
-	rv = itty_http_200(sockfd, index_html, sizeof(index_html)-1);
-	if(rv == -1) { perror("itty_http_200"); }
 
 	return itty_status_ok;
 }
