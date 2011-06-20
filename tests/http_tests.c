@@ -17,7 +17,7 @@ static void http_get_req();
 static void http_get_verb();
 static void http_get_path();
 static void http_get_httpVersion();
-	
+static void http_parse_ignoreHeaders();
 static CU_TestInfo http_tests_tests[];
 
 // Public data
@@ -44,6 +44,7 @@ static CU_TestInfo http_tests_tests[] = {
 	ITTY_TEST_ENTRY(http_get_verb),
 	ITTY_TEST_ENTRY(http_get_path),
 	ITTY_TEST_ENTRY(http_get_httpVersion),
+	ITTY_TEST_ENTRY(http_parse_ignoreHeaders),
 	CU_TEST_INFO_NULL,
 };
 
@@ -53,6 +54,14 @@ const char* const get_req_noheaders = "\
 GET /path/file.html HTTP/1.0\r\n\
 \r\n\
 ";
+
+const char* const get_req = "\
+GET /path/file.html HTTP/1.0\r\n\
+From: someuser@somewhere.com\r\n\
+User-Agent: useragent/1.0\r\n\
+\r\n\
+";
+
 struct http_parser_test_data {
 	char req[4096];
 	http_dispatch_verb_t verb;
@@ -165,5 +174,25 @@ static void http_get_httpVersion() {
 	CU_ASSERT(http_parse_finish(&parser) == 1);
 	// check that we grabbed the path
 	CU_ASSERT_EQUAL(data.version, HTTP_DISPATCH_HTTP_VERSION_1_0);
+}
+
+/*
+ * Test whether we ignore headers and succeed at parsing
+ */
+static void http_parse_ignoreHeaders() {
+	struct http_parser_test_data data;
+	struct http_parser_data parser;
+
+	memset(&data, 0, sizeof(data));
+	http_parse_init(&parser);
+
+	http_parse_execute(&parser, &data, get_req, strlen(get_req));
+
+	// Check that we didnt error out
+	CU_ASSERT(http_parse_finish(&parser) != -1);
+	// Check that we finished
+	CU_ASSERT(http_parse_finish(&parser) != 0);
+	CU_ASSERT(http_parse_finish(&parser) == 1);
+	CU_ASSERT_STRING_EQUAL(data.req, get_req);
 }
 

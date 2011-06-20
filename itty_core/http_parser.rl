@@ -46,7 +46,7 @@
 		http_verb space+ http_path space+ http_version http_endline;
 
 	http_header_option = 
-		http_any+ space+ ":" space+ http_any+ http_endline;
+		http_any+ ":" space* (any-http_endline)+ http_endline;
 
 	http_request = http_header_start http_header_option* http_endline;
 
