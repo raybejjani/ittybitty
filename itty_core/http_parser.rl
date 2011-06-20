@@ -14,15 +14,19 @@
 	access fsm->;
 
 	# Actions
+	# sends out every character of the request
 	action req_accum {
 		itty_http_dispatch_accumReq(id, fc);
 	}
+	# sets the HTTP verb (GET, POST etc.)
 	action verb_get {
 		itty_http_dispatch_setVerb(id, HTTP_DISPATCH_VERB_GET);
 	}
+	# sends out every character of the resrouce path
 	action path_accum {
 		itty_http_dispatch_accumPath(id, fc);
 	}
+	# sets the HTTP version 
 	action version_1_0 {
 		itty_http_dispatch_setHttpVersion(id, HTTP_DISPATCH_HTTP_VERSION_1_0);
 	}
