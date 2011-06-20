@@ -18,6 +18,7 @@ itty_core:
 .PHONY:tests
 tests: tests/CUnit ittybitty
 	make -C tests
+	./tests/console_test
 
 #util
 siege-2.70: siege-2.70.tar.gz
