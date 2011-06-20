@@ -1,44 +1,86 @@
-ittybitty - The little webserver that could.
+ittybitty - The little webserver framework that could.
 
-Ittybitty is a simple webserver targetting small, resource constrained 
-embedded systems. It is designed to defer system-specific or implementation 
-specific code to the intergrator through linking.
+Ittybitty is a simple webserver library targetting small, resource 
+constrained TCP/IP enabled embedded systems. It is designed to allow an 
+integrator to run a simple webserver while specialising 
+system/implementation specific code through linking pre-defined callbacks to
+and from ittybitty.
+It provides services to: 
+- [Incomplete] Parse HTTP requests with header options and dispatch to handlers
+- [Incomplete] Easily send back HTTP responses with appropriate headers
+- [Incomplete] Utilities to prepare, lookup and serve static and dynamic content
+
+Dependencies & Assumptions
+- Berkeley Sockets
+- Ragel http://www.complang.org/ragel/
+- CUnit & Siege (included in repo)
+
+Current Status
+- Dummy server that serves hardcoded responses
+- Basic HTTP/1.0 GET parser. Will skip headers.
+- Minimal response construction tools
+- No content lookup tools
+- Basic tests for parser
+
+
+
+Design Goals
+- Defer policy to user layer.
+- Minimise pointers/runtime resolution. Attempt to resolve at link time.
+- Minimise RAM usage.
+- Maximise speed (even at the expense of ROM/.text)
 
 Design Overview
-* - integrator provided/selected
-+ - ittybitty core
+* Integrator Provided  *    |      +      Ittybitty        +
+************************           +++++++++++++++++++++++++
+* socket event handler *  ------>  + http request dispatch +
+************************    + ---  +                       +
+                            |      +++++++++++++++++++++++++
+************************    |
+* http dispatch        *  <-+
+************************
+         |
+	 v
+************************           +++++++++++++++++++++++++
+* itty generated       *  <----->  + content lookup        +
+* content data servers *           + utilities             +
+************************           +++++++++++++++++++++++++
+         |
+	 v
+************************           +++++++++++++++++++++++++
+* itty generated       *  <----->  + http response         +
+* content data servers *     +---  + utilities             +
+************************     |     +++++++++++++++++++++++++
+                             |
+************************     |
+* socket output        *  <--+
+************************
 
-******************       ++++++++++++++++++++++
-* socket handler * <---> + ittybitty dispatch +
-******************       ++++++++++++++++++++++
-                                  |
-        v-----------------v------ +------------v
-******************   ********************  ***********
-* content lookup *   * dynamic handlers *  * loggers *
-******************   ********************  ***********
+HTTP requests are detected by integrator provided code (with select, epoll
+etc.) and accepted. The resulting socket is passed to ittybitty's http
+request parsing tools. Ittybitty will read the request in and make the
+appropriate callbacks at various points in the parsine of the request. When
+parsing is complete the content is looked up, possibly utilising some of the
+content lookup utilities ittybitty provides (hash based lookup, state
+machine path matching) and static content is served using ittybitty http
+response utilities while dynamic content is constructed as needed. All
+output is put out on the stream. Socket closure is left to the integrator
+code.
+
+Future Work
+- HTTP/1.1 support with more codes
+- PUT, POST, HEAD DELETE verb support
+- Header option dispatch support
+- Utilities to do (verb, url) tuple hash based content lookup
+  - md5 based hash
+  - gperf for content set known apriori
+- Utilities to build state machine to match url for content lookup
+- Utilities to generate linkable binary blobs with content lookup
+  - Ability to gzip static content and mark it as such when served
+- Optional Metrics and Statistics service
+  - protobuf, Thrift or MessagePack based
+
 
 Style & Conventions
 FILLME
 
-
-
-
-NOTES
-- dumb server
-- load tests
-- split into files
-
-- socket handler api
-  - setup socket
-  - call back into dispatch
-- write basic tests
-- write load tester/reporting
-
-- dispatch calls back into sendv based
-- memcmp list of paths matcher
-- ragel for tree path matcher
-- md5 path matcher with uhash
-- logger unit with 2 interfaces:
-  - json stats through callback
-  - protobuf sockets interface to python dumper
-   
