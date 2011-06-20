@@ -41,7 +41,7 @@
 	http_endline = "\r" "\n"?;
 	http_verb = "GET" @verb_get;
 	http_path = (("/" http_any*)+ ("." http_any+)?) $ path_accum;
-	http_version = "HTTP/" ("1.0" @version_1_0) | ("1.1" @version_1_1);
+	http_version = "HTTP/" (("1.0" @version_1_0) | ("1.1" @version_1_1));
 	http_header_start =
 		http_verb space+ http_path space+ http_version http_endline;
 
