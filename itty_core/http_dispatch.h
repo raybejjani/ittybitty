@@ -20,6 +20,7 @@ struct http_parser_data
 };
 
 // Dispatch callbacks, provided to dispatch
+void itty_http_dispatch_accumReq(void* id, char c);
 void itty_http_dispatch_setVerb(void* id, http_dispatch_verb_t verb);
 void itty_http_dispatch_accumPath(void* id, char c);
 void itty_http_dispatch_setHttpVersion(void* id, http_dispatch_http_version_t version);

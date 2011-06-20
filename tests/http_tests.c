@@ -13,6 +13,7 @@
 #include "http_dispatch.h"
 
 // Private functions prototypes
+static void http_get_req();
 static void http_get_verb();
 static void http_get_path();
 static void http_get_httpVersion();
@@ -39,6 +40,7 @@ int http_tests_cleanup() {
 
 // Private functions and tests
 static CU_TestInfo http_tests_tests[] = {
+	ITTY_TEST_ENTRY(http_get_req),
 	ITTY_TEST_ENTRY(http_get_verb),
 	ITTY_TEST_ENTRY(http_get_path),
 	ITTY_TEST_ENTRY(http_get_httpVersion),
@@ -52,10 +54,16 @@ GET /path/file.html HTTP/1.0\r\n\
 \r\n\
 ";
 struct http_parser_test_data {
+	char req[4096];
 	http_dispatch_verb_t verb;
 	char path[256];
 	http_dispatch_http_version_t version;
 };
+
+void itty_http_dispatch_accumReq(void* id, char c) {
+	struct http_parser_test_data* data = (struct http_parser_test_data*)id;
+	data->req[strlen(data->req)] = c;
+}
 
 void itty_http_dispatch_setVerb(void* id, http_dispatch_verb_t verb) {
 	struct http_parser_test_data* data = (struct http_parser_test_data*)id;
@@ -73,6 +81,27 @@ void itty_http_dispatch_accumPath(void* id, char c) {
 void itty_http_dispatch_setHttpVersion(void* id, http_dispatch_http_version_t version) {
 	struct http_parser_test_data* data = (struct http_parser_test_data*)id;
 	data->version = version;
+}
+
+/*
+ * Test whether we can extract the request
+ */
+static void http_get_req() {
+	struct http_parser_test_data data;
+	struct http_parser_data parser;
+
+	memset(&data, 0, sizeof(data));
+	http_parse_init(&parser);
+
+	http_parse_execute(&parser, &data, get_req_noheaders, strlen(get_req_noheaders));
+
+	// Check that we didnt error out
+	CU_ASSERT(http_parse_finish(&parser) != -1);
+	// Check that we finished
+	CU_ASSERT(http_parse_finish(&parser) != 0);
+	CU_ASSERT(http_parse_finish(&parser) == 1);
+	// check that we grabbed the path
+	CU_ASSERT_STRING_EQUAL(data.req, get_req_noheaders);
 }
 
 /*

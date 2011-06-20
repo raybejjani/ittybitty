@@ -51,6 +51,11 @@ struct itty_data {
 } data;
 
 // itty functions that have to be implemented
+void itty_http_dispatch_accumReq(void* id, char c) {
+	struct http_parser_test_data* data = (struct http_parser_test_data*)id;
+	printf("%c", c);
+}
+
 void itty_http_dispatch_setVerb(void* id, http_dispatch_verb_t verb) {
 	struct itty_data* data = (struct itty_data*)id;
 	data->verb = verb;

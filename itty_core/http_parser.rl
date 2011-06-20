@@ -14,6 +14,9 @@
 	access fsm->;
 
 	# Actions
+	action req_accum {
+		itty_http_dispatch_accumReq(id, fc);
+	}
 	action verb_get {
 		itty_http_dispatch_setVerb(id, HTTP_DISPATCH_VERB_GET);
 	}
@@ -45,7 +48,7 @@
 
 	# main Machine
 	main := (
- 		http_request
+ 		http_request $ req_accum
 		);
 }%%
 
