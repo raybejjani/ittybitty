@@ -5,7 +5,11 @@ export CFLAGS = -std=c99 -I$(PWD)/itty_core
 export LDFLAGS = -L$(PWD)/itty_core/
 export LIBS = -litty_core
 
-all: ittybitty
+all: ittybitty benchmark run
+
+# execution
+run: ittybitty
+	./ittybitty
 
 # compilation
 ittybitty: itty_core $(OBJS)
