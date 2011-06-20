@@ -1,18 +1,22 @@
 
 OBJS = itty.o main.o
 
-CFLAGS = -std=c99
-
-export CFLAGS
+export CFLAGS = -std=c99 -I$(PWD)/http_dispatch
+export LDFLAGS = -L$(PWD)/http_dispatch/
+export LIBS = -lhttp_dispatch
 
 all: ittybitty
 
-# compliation
-ittybitty: $(OBJS)
+# compilation
+ittybitty: http_dispatch $(OBJS)
 	$(CC) $(OBJS) -o $@
 
+.PHONY:http_dispatch
+http_dispatch:
+	make -C http_dispatch http_dispatch
+
 .PHONY:tests
-tests: tests/CUnit
+tests: tests/CUnit ittybitty
 	make -C tests
 
 #util
@@ -39,4 +43,5 @@ benchmark: siege ittybitty
 .PHONY:clean
 clean:
 	rm -rf ittybitty *.o siege siege.*
+	make -C http_dispatch clean
 	make -C tests clean
