@@ -59,6 +59,7 @@ const char* const get_req = "\
 GET /path/file.html HTTP/1.0\r\n\
 From: someuser@somewhere.com\r\n\
 User-Agent: useragent/1.0\r\n\
+Host: ::1:3490\r\n\
 \r\n\
 ";
 
