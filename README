@@ -32,6 +32,7 @@ Design Goals
 
 Design Overview
 * Integrator Provided  *    |      +      Ittybitty        +
+
 ************************           +++++++++++++++++++++++++
 * socket event handler *  ------>  + http request dispatch +
 ************************    + ---  +                       +
@@ -43,23 +44,19 @@ Design Overview
 	 v
 ************************           +++++++++++++++++++++++++
 * itty generated       *  <----->  + content lookup        +
-* content data servers *           + utilities             +
+* content data         *           + utilities             +
 ************************           +++++++++++++++++++++++++
          |
-	 v
-************************           +++++++++++++++++++++++++
-* itty generated       *  <----->  + http response         +
-* content data servers *     +---  + utilities             +
+	 +-------------------+
 ************************     |     +++++++++++++++++++++++++
-                             |
-************************     |
-* socket output        *  <--+
-************************
+* socket output        *  <--+-->  + http response         +
+*                      *           + utilities             +
+************************           +++++++++++++++++++++++++
 
 HTTP requests are detected by integrator provided code (with select, epoll
 etc.) and accepted. The resulting socket is passed to ittybitty's http
 request parsing tools. Ittybitty will read the request in and make the
-appropriate callbacks at various points in the parsine of the request. When
+appropriate callbacks at various points in the parsing of the request. When
 parsing is complete the content is looked up, possibly utilising some of the
 content lookup utilities ittybitty provides (hash based lookup, state
 machine path matching) and static content is served using ittybitty http
