@@ -10,8 +10,8 @@
 // itty defined functions & structs
 
 typedef enum {
-	itty_status_ok,	
-	itty_status_error,	
+	ITTY_STATUS_OK,
+	ITTY_STATUS_ERROR,
 } itty_status_t;
 
 

@@ -76,7 +76,7 @@ itty_status_t itty_handle(int sockfd) {
 
 	// setup parser and data
 	memset(&data, 0, sizeof(data));	
-	http_parse_init(&parser);
+	itty_http_dispatch_init(&parser);
 
 	// read request, break out on errors and a successful request read.
 	do {
@@ -91,15 +91,15 @@ itty_status_t itty_handle(int sockfd) {
 		else if(rv < 0 && errno != EWOULDBLOCK) { perror("recv"); break; }
 		else {
 			printf("executing on (%d:%d) %s\r\n", rv, errno, request_data);
-			http_parse_execute(&parser, &data, request_data, rv);
+			itty_http_dispatch_execute(&parser, &data, request_data, rv);
 		}
-	} while(http_parse_finish(&parser) == 0);
+	} while(itty_http_dispatch_finish(&parser) == 0);
 
 	// ensure a newline after any possible printing related to parsing
 	printf("\r\n");
 
 	// check if we had a parsing error
-	if(http_parse_finish(&parser) == -1) {
+	if(itty_http_dispatch_finish(&parser) == -1) {
 		rv = itty_http_400(sockfd);
 		printf("HTTP 400 Bad Request\r\n");
 		if(rv == -1) { perror("itty_http_400"); }
@@ -109,6 +109,6 @@ itty_status_t itty_handle(int sockfd) {
 		if(rv == -1) { perror("itty_http_200"); }
 	}
 
-	return itty_status_ok;
+	return ITTY_STATUS_OK;
 }
 

@@ -57,18 +57,18 @@
 
 %% write data;
 
-void http_parse_init(struct http_parser_data *fsm) {
+void itty_http_dispatch_init(struct http_parser_data *fsm) {
 	%% write init;
 }
 
-void http_parse_execute(struct http_parser_data *fsm, void* const id, const char *http_data, int len) {
+void itty_http_dispatch_execute(struct http_parser_data *fsm, void* const id, const char *http_data, int len) {
 	const char *p = http_data;
 	const char *pe = http_data + len;
 
 	%% write exec;
 }
 
-int http_parse_finish(struct http_parser_data *fsm) {
+int itty_http_dispatch_finish(struct http_parser_data *fsm) {
 	if ( fsm->cs == http_parse_error )
 		return -1;
 	if ( fsm->cs >= http_parse_first_final )

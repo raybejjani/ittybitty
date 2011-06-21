@@ -100,15 +100,15 @@ static void http_get_req() {
 	struct http_parser_data parser;
 
 	memset(&data, 0, sizeof(data));
-	http_parse_init(&parser);
+	itty_http_dispatch_init(&parser);
 
-	http_parse_execute(&parser, &data, get_req_noheaders, strlen(get_req_noheaders));
+	itty_http_dispatch_execute(&parser, &data, get_req_noheaders, strlen(get_req_noheaders));
 
 	// Check that we didnt error out
-	CU_ASSERT(http_parse_finish(&parser) != -1);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) != -1);
 	// Check that we finished
-	CU_ASSERT(http_parse_finish(&parser) != 0);
-	CU_ASSERT(http_parse_finish(&parser) == 1);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) != 0);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) == 1);
 	// check that we grabbed the path
 	CU_ASSERT_STRING_EQUAL(data.req, get_req_noheaders);
 }
@@ -121,15 +121,15 @@ static void http_get_verb() {
 	struct http_parser_data parser;
 	
 	memset(&data, 0, sizeof(data));	
-	http_parse_init(&parser);
+	itty_http_dispatch_init(&parser);
 
-	http_parse_execute(&parser, &data, get_req_noheaders, strlen(get_req_noheaders));
+	itty_http_dispatch_execute(&parser, &data, get_req_noheaders, strlen(get_req_noheaders));
 
 	// Check that we didnt error out
-	CU_ASSERT(http_parse_finish(&parser) != -1);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) != -1);
 	// Check that we finished
-	CU_ASSERT(http_parse_finish(&parser) != 0);
-	CU_ASSERT(http_parse_finish(&parser) == 1);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) != 0);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) == 1);
 	// check that we parsed the GET
 	CU_ASSERT(data.verb == HTTP_DISPATCH_VERB_GET);
 }
@@ -142,15 +142,15 @@ static void http_get_path() {
 	struct http_parser_data parser;
 
 	memset(&data, 0, sizeof(data));
-	http_parse_init(&parser);
+	itty_http_dispatch_init(&parser);
 
-	http_parse_execute(&parser, &data, get_req_noheaders, strlen(get_req_noheaders));
+	itty_http_dispatch_execute(&parser, &data, get_req_noheaders, strlen(get_req_noheaders));
 
 	// Check that we didnt error out
-	CU_ASSERT(http_parse_finish(&parser) != -1);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) != -1);
 	// Check that we finished
-	CU_ASSERT(http_parse_finish(&parser) != 0);
-	CU_ASSERT(http_parse_finish(&parser) == 1);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) != 0);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) == 1);
 	// check that we grabbed the path
 	CU_ASSERT_STRING_EQUAL(data.path, "/path/file.html");
 }
@@ -163,15 +163,15 @@ static void http_get_httpVersion() {
 	struct http_parser_data parser;
 
 	memset(&data, 0, sizeof(data));
-	http_parse_init(&parser);
+	itty_http_dispatch_init(&parser);
 
-	http_parse_execute(&parser, &data, get_req_noheaders, strlen(get_req_noheaders));
+	itty_http_dispatch_execute(&parser, &data, get_req_noheaders, strlen(get_req_noheaders));
 
 	// Check that we didnt error out
-	CU_ASSERT(http_parse_finish(&parser) != -1);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) != -1);
 	// Check that we finished
-	CU_ASSERT(http_parse_finish(&parser) != 0);
-	CU_ASSERT(http_parse_finish(&parser) == 1);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) != 0);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) == 1);
 	// check that we grabbed the path
 	CU_ASSERT_EQUAL(data.version, HTTP_DISPATCH_HTTP_VERSION_1_0);
 }
@@ -184,15 +184,15 @@ static void http_parse_ignoreHeaders() {
 	struct http_parser_data parser;
 
 	memset(&data, 0, sizeof(data));
-	http_parse_init(&parser);
+	itty_http_dispatch_init(&parser);
 
-	http_parse_execute(&parser, &data, get_req, strlen(get_req));
+	itty_http_dispatch_execute(&parser, &data, get_req, strlen(get_req));
 
 	// Check that we didnt error out
-	CU_ASSERT(http_parse_finish(&parser) != -1);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) != -1);
 	// Check that we finished
-	CU_ASSERT(http_parse_finish(&parser) != 0);
-	CU_ASSERT(http_parse_finish(&parser) == 1);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) != 0);
+	CU_ASSERT(itty_http_dispatch_finish(&parser) == 1);
 	CU_ASSERT_STRING_EQUAL(data.req, get_req);
 }
 

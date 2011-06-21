@@ -48,13 +48,13 @@ void itty_http_dispatch_setHttpVersion(void* id, http_dispatch_http_version_t ve
 /*
  * Initialises the parser to it's start state.
  */
-void http_parse_init(struct http_parser_data *fsm);
+void itty_http_dispatch_init(struct http_parser_data *fsm);
 
 /*
  * Runs the parses on the input. Parser carries state.
  * id - user provided id value that is passed back in callbacks.
  */
-void http_parse_execute(struct http_parser_data *fsm, void* const id, const char *http_data, int len);
+void itty_http_dispatch_execute(struct http_parser_data *fsm, void* const id, const char *http_data, int len);
 
 /*
  * Convenience function to check if parser is in a finish or error state.
@@ -63,7 +63,7 @@ void http_parse_execute(struct http_parser_data *fsm, void* const id, const char
  *           1  Complete
  *          -1  Error
  */
-int http_parse_finish(struct http_parser_data *fsm);
+int itty_http_dispatch_finish(struct http_parser_data *fsm);
 
 #endif /* __HTTP_DISPATCH_H__ */
 
