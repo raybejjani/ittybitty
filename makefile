@@ -1,28 +1,35 @@
 
 OBJS = itty.o main.o
 
-export CFLAGS = -std=c99 -I$(PWD)/itty_core
-export LDFLAGS = -L$(PWD)/itty_core/
+# directory where itty files live
+export ITTY_DIR=$(PWD)/itty_core
+
+# compile and link flags
+export CFLAGS = -std=c99 -I$(ITTY_DIR)
+export LDFLAGS = -L$(ITTY_DIR)
 export LIBS = -litty_core
 
-all: ittybitty benchmark run
+all: itty_core simpleserve benchmark 
 
 # execution
-run: ittybitty
-	./ittybitty
+.PHONY: run
+run: simpleserve
+	./examples/simpleserve/simpleserve	
 
 # compilation
-ittybitty: itty_core $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) $(OBJS) -o $@ 
-
 .PHONY:itty_core
 itty_core:
 	make -C itty_core itty_core
 
 .PHONY:tests
-tests: tests/CUnit ittybitty
+tests: tests/CUnit itty_core
 	make -C tests
 	./tests/console_test
+
+# examples
+.PHONY: simpleserve
+simpleserve:
+	make -C examples/simpleserve simpleserve
 
 #util
 siege-2.70: siege-2.70.tar.gz
@@ -42,7 +49,7 @@ tests/CUnit: CUnit-2.1-2-src.tar.bz2
 		make && make install\
 	)
 # setup
-benchmark: siege ittybitty
+benchmark: siege simpleserve
 	./benchmark.sh
 
 .PHONY:clean
@@ -50,3 +57,5 @@ clean:
 	rm -rf ittybitty *.o siege siege.*
 	make -C itty_core clean
 	make -C tests clean
+	make -C examples/simpleserve clean
+
