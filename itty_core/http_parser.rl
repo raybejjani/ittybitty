@@ -7,8 +7,6 @@
 
 #include "http_dispatch.h"
 
-#define BUFLEN 1024
-
 %%{
 	machine http_parse;
 	access fsm->;
@@ -36,9 +34,10 @@
 
 
 	# Sub-Machines
-	http_any = alpha|"_"|"-"; 
-
 	http_endline = "\r" "\n"?;
+	http_any = alpha|"_"|"-";
+	http_header_value_any = any-http_endline; 
+
 	http_verb = "GET" @verb_get;
 	http_path = (("/" http_any*)+ ("." http_any+)?) $ path_accum;
 	http_version = "HTTP/" (("1.0" @version_1_0) | ("1.1" @version_1_1));
@@ -46,7 +45,7 @@
 		http_verb space+ http_path space+ http_version http_endline;
 
 	http_header_option = 
-		http_any+ ":" space* (any-http_endline)+ http_endline;
+		http_any+ ":" space* http_header_value_any+ http_endline;
 
 	http_request = http_header_start http_header_option* http_endline;
 
