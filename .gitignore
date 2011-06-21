@@ -3,6 +3,7 @@
 
 *.o
 *.a
+*.rl.*
 
 *CUnit*
 *siege*

@@ -5,10 +5,10 @@ CFLAGS ?= -std=c99
 
 OBJS = $(subst .c,.o,$(shell ls *.c))
 
-itty_core: http_parser.c $(shell ls *.h) $(OBJS)
+itty_core: http_parser.rl.o $(shell ls *.h) $(OBJS)
 	$(AR) rcs lib$@.a $(OBJS)
 
-http_parser.c: http_parser.rl $(shell ls *.h) 
+http_parser.rl.c: http_parser.rl $(shell ls *.h) 
 	ragel -C -G2 $< -o $@
 
 
