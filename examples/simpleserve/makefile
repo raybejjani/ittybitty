@@ -1,5 +1,5 @@
 
-OBJS = itty.o main.o
+OBJS = $(subst .o,.c, $(shell ls *.c))
 
 # Expects:
 #  ITTY_DIR: Directory where itty files and archives live

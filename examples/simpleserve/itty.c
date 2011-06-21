@@ -14,29 +14,7 @@
 #include "http_dispatch.h"
 #include "http_util.h"
 #include "ittybitty.h"
-
-// Constants
-const char index_html[] = "\
-<head>\
-<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\
-<title>Ittybitty Welcome page</title>\
-</head>\
-<body>\
-Welcome to Ittybitty!\
-</body>\
-\r\n\
-";
-
-const char foo_html[] = "\
-<head>\
-<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\
-<title>Ittybitty Welcome page</title>\
-</head>\
-<body>\
-I pity the foo!\
-</body>\
-";
-
+#include "content.h"
 
 // http dispatch data
 struct http_parser_data parser;
@@ -88,7 +66,7 @@ itty_status_t itty_handle(int sockfd) {
 
 		if(rv == 0 ) { printf("conn closed"); break; }
 		else if(rv < 0 && errno == EAGAIN) { continue; }
-		else if(rv < 0 && errno != EWOULDBLOCK) { perror("recv"); break; }
+		else if(rv < 0 && errno != EWOULDBLOCK) { perror("recv"); /*break; */}
 		else {
 			printf("executing on (%d:%d) %s\r\n", rv, errno, request_data);
 			itty_http_dispatch_execute(&parser, &data, request_data, rv);
@@ -104,9 +82,17 @@ itty_status_t itty_handle(int sockfd) {
 		printf("HTTP 400 Bad Request\r\n");
 		if(rv == -1) { perror("itty_http_400"); }
 	} else {
-		printf("Returning %s\r\n", data.path);
-		rv = itty_http_200(sockfd, index_html, sizeof(index_html)-1);
-		if(rv == -1) { perror("itty_http_200"); }
+		const itty_content_t* content_data = itty_content_get(data.verb, data.path, strlen(data.path));
+
+		if(content_data == NULL) {
+			printf("%s not found. Returning 404\r\n", data.path);
+			rv = itty_http_404(sockfd);
+			if(rv == -1) { perror("itty_http_404"); }
+		} else {
+			printf("Returning %s\r\n", data.path);
+			rv = itty_http_200(sockfd, content_data->data, content_data->length);
+			if(rv == -1) { perror("itty_http_200"); }
+		}
 	}
 
 	return ITTY_STATUS_OK;
