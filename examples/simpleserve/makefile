@@ -15,8 +15,13 @@ run: simpleserve
 	./simpleserve
 
 # compilation
-simpleserve: itty_core $(OBJS)
+simpleserve: itty_core $(OBJS) content_matcher.rl.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) $(OBJS) -o $@ 
+
+.PHONY:content_matcher.rl.c
+content_matcher.rl.c: 
+	../../tools/ittyfs.py static -o ./content_matcher.rl --template ../../tools/content_matcher.rl.tmpl
+	ragel -C -G2 content_matcher.rl -o $@
 
 .PHONY:itty_core
 itty_core:
@@ -24,5 +29,5 @@ itty_core:
 
 .PHONY:clean
 clean:
-	rm -rf simpleserve *.o
+	rm -rf simpleserve *.o content_matcher.rl*
 

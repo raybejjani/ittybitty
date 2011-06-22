@@ -16,12 +16,11 @@ Dependencies & Assumptions
 - CUnit & Siege (included in repo)
 
 Current Status
-- Dummy server that serves hardcoded responses
+- Dummy server that serves content matched responses
 - Basic HTTP/1.0 GET parser. Will skip headers.
 - Minimal response construction tools
-- No content lookup tools
 - Basic tests for parser
-
+- ittyfs.py to build state machine to match url for content lookup and content storage.
 
 
 Design Goals
@@ -64,6 +63,13 @@ response utilities while dynamic content is constructed as needed. All
 output is put out on the stream. Socket closure is left to the integrator
 code.
 
+Ittyfs.py Tool
+ittyfs is a basic tool that takes a directory of static files and prepares a C 
+file that implements itty_get_content and provides a pointer to the file data. 
+It generates a ragel file with rules to match each file path that return 
+statically allocated struct itty_content pointers contain the matching file 
+information. It also takes an extra path to be the root index file.
+
 Future Work
 - HTTP/1.1 support with more codes
 - PUT, POST, HEAD DELETE verb support
@@ -71,7 +77,6 @@ Future Work
 - Utilities to do (verb, url) tuple hash based content lookup
   - md5 based hash
   - gperf for content set known apriori
-- Utilities to build state machine to match url for content lookup
 - Utilities to generate linkable binary blobs with content lookup
   - Ability to gzip static content and mark it as such when served
 - Optional Metrics and Statistics service
