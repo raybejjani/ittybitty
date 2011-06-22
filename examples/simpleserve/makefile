@@ -26,6 +26,10 @@ content_matcher.rl.c:
 .PHONY:itty_core
 itty_core:
 	make -C ../../itty_core itty_core
+# util rules
+.PHONY: viz
+viz:
+	ragel -G2 content_matcher.rl -pV > foo.dot &&  dotty foo.dot && rm foo.dot
 
 .PHONY:clean
 clean:
