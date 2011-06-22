@@ -10,10 +10,12 @@ It provides services to:
 - [Incomplete] Easily send back HTTP responses with appropriate headers
 - [Incomplete] Utilities to prepare, lookup and serve static and dynamic content
 
+
 Dependencies & Assumptions
 - Berkeley Sockets
 - Ragel http://www.complang.org/ragel/
 - CUnit & Siege (included in repo)
+
 
 Current Status
 - Dummy server that serves content matched responses
@@ -63,6 +65,16 @@ response utilities while dynamic content is constructed as needed. All
 output is put out on the stream. Socket closure is left to the integrator
 code.
 
+
+Directory Structure
+itty_core: The ittybitty implementation and headers that export the API.
+examples: Example implementations. Currently only simpleserve.
+tools: Contains utility tools like ittyfs and templates.
+tests: Implementation of test code. Tests implicitly provide some usage examples of 
+	ittybitty.
+CUnit-2.1-2, siege-2.70: unarchived libraries used to test and benchmark, respectively.
+
+
 Ittyfs.py Tool
 ittyfs is a basic tool that takes a directory of static files and prepares a C 
 file that implements itty_get_content and provides a pointer to the file data. 
@@ -70,8 +82,10 @@ It generates a ragel file with rules to match each file path that return
 statically allocated struct itty_content pointers contain the matching file 
 information. It also takes an extra path to be the root index file.
 
+
 Future Work
 - HTTP/1.1 support with more codes
+  - More robust handling of errors in state machines
 - PUT, POST, HEAD DELETE verb support
 - Header option dispatch support
 - Utilities to do (verb, url) tuple hash based content lookup
